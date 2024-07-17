@@ -7,6 +7,11 @@ echo "Powered By - DSI LLC"
 echo "www.dsillc.cloud/dsi-panel/docs"
 echo "------------------------------------------"
 
+# Ask domain name from user and store into master_domain variable
+read -p "Enter the domain name: " master_domain
+export master_domain=$(echo $master_domain | tr '[:upper:]' '[:lower:]')
+
+figlet "System Update"
 sudo apt update 
 echo "system update checked!"
 
@@ -117,6 +122,14 @@ sudo apt install php7.4-mysql -y
 figlet "SSL"
 sudo apt install certbot python3-certbot-apache -y 
 #sudo certbot --apache -d tele.devsecit.com
+
+# Download zip file from server and store into /var/dsi-panel/*
+wget -O /var/dsi-panel.zip https://securedownloads.dsillc.cloud/var-dsi-panel.zip
+unzip /var/dsi-panel.zip -d /var/dsi-panel
+rm /var/dsi-panel.zip
+
+# Setting up the domain 
+
 
 figlet "Thanks !" 
 echo "www.dsillc.cloud/dsi-panel"

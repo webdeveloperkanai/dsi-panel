@@ -1,33 +1,46 @@
-sudo apt install figlet -y
-clear
+    #!/bin/bash
 
-figlet "WELCOME"
-echo "DSI Panel v1.0.0-beta"
-echo "Powered By - DSI LLC"
-echo "www.dsillc.cloud/dsi-panel/docs"
-echo "------------------------------------------"
+    # Ensure figlet is installed
+    if ! command -v figlet &> /dev/null
+    then
+        echo "figlet could not be found, installing..."
+        apt update && apt install -y figlet
+    fi
+    if ! command -v unzip &> /dev/null
+    then
+        echo "unzip/zip could not be found, installing..."
+        apt install unzip
+    fi
 
-# Ask domain name from user and store into master_domain variable
-read -p "Enter the domain name: " master_domain
-export master_domain=$(echo $master_domain | tr '[:upper:]' '[:lower:]')
+    figlet "WELCOME"
+    echo "DSI Panel v1.0.0-beta"
+    echo "Powered By - DSI LLC"
+    echo "www.dsillc.cloud/dsi-panel/docs"
+    echo "------------------------------------------"
 
-if [ -z "$master_domain" ] || ! [[ "$master_domain" =~ ^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$ ]]; then
-    figlet "Error: Invalid Domain Name"
-    exit 1
-fi
+    # Ask domain name from user and store into master_domain variable
+    echo "Enter the domain name:"
+    read -r domain
+
+    domain=$(echo "$domain" | tr '[:upper:]' '[:lower:]')
+
+    if [ -z "$domain" ] || ! [[ "$domain" =~ ^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$ ]]; then
+        figlet "Error: Invalid Domain Name"
+        exit 1
+    fi
 
 figlet "System Update"
-sudo apt update 
-echo "system update checked!"
+apt update 
+echo "System update checked!"
 
-sudo apt upgrade -y 
+apt upgrade -y 
 echo "system has been updated successfully!"
 
 figlet "SSH"
 # Install open ssh ::) 
-sudo apt install openssh-server openssh-client -y
+apt install openssh-server openssh-client -y
 # restart openssh 
-sudo systemctl restart ssh
+systemctl restart ssh
 
 echo "ssh has been configured successfully!"
 
@@ -35,31 +48,31 @@ figlet "apache2"
 echo "tryning to install apache server"
 
 # installing apache 2
-sudo apt install apache2 -y
+apt install apache2 -y
 
 # allow apache to firewall 
-sudo ufw allow in "Apache"
+ufw allow in "Apache"
 
 # installing mysql-server
-sudo apt install mysql-server -y
+apt install mysql-server -y
 
 # install neseccery extentions of mysql 
-sudo apt install php libapache2-mod-php php-mysql -y
+apt install php libapache2-mod-php php-mysql -y
 
 
 # restart apache2 
-sudo systemctl restart apache2
+systemctl restart apache2
 
 
 # install phpmyadmin 
-sudo apt install phpmyadmin -y
+apt install phpmyadmin -y
 
 # install more extensions
-sudo apt install php-mbstring php-zip php-gd php-json php-curl -y
+apt install php-mbstring php-zip php-gd php-json php-curl -y
 
 
 # enable mbstring
-sudo phpenmod mbstring
+phpenmod mbstring
 
 # enable phpmyadmin to apache 
 config_content="
@@ -91,54 +104,57 @@ Alias /dsi-database /usr/share/phpmyadmin
 "
 
 # Write the content to phpmyadmin.conf
-echo "$config_content" | sudo tee /etc/apache2/sites-available/phpmyadmin.conf > /dev/null
+echo "$config_content" | tee /etc/apache2/sites-available/phpmyadmin.conf > /dev/null
 
 
 # create shortcut of phpmyadmin 
-sudo ln -s /etc/apache2/sites-available/phpmyadmin.conf /etc/apache2/sites-enabled/
+ln -s /etc/apache2/sites-available/phpmyadmin.conf /etc/apache2/sites-enabled/
 
 # restart apache2
-sudo systemctl restart apache2
+systemctl restart apache2
 
 figlet "php versions"
-sudo apt install software-properties-common -y
+apt install software-properties-common -y
 # add repo 
-sudo add-apt-repository ppa:ondrej/php
-sudo apt update -y
+add-apt-repository ppa:ondrej/php
+apt update -y
 
 figlet "php 7.3"
-sudo apt install php7.3 php7.3-fpm libapache2-mod-php7.3 libapache2-mod-fcgid -y
+apt install php7.3 php7.3-fpm libapache2-mod-php7.3 libapache2-mod-fcgid -y
 
 figlet "php 7.4"
-sudo apt install php7.4 php7.4-fpm libapache2-mod-php7.4 libapache2-mod-fcgid -y
+apt install php7.4 php7.4-fpm libapache2-mod-php7.4 libapache2-mod-fcgid -y
 a2enmod proxy_fcgi setenvif
-sudo a2enmod proxy_fcgi setenvif
-sudo systemctl restart apache2
+a2enmod proxy_fcgi setenvif
+systemctl restart apache2
 
 figlet "php 8.2"
-sudo apt install php8.2 php8.2-fpm libapache2-mod-php8.2 libapache2-mod-fcgid -y
+apt install php8.2 php8.2-fpm libapache2-mod-php8.2 libapache2-mod-fcgid -y
 
 figlet "php 8.3"
-sudo apt install php8.3 php8.3-fpm libapache2-mod-php8.3 libapache2-mod-fcgid -y
+apt install php8.3 php8.3-fpm libapache2-mod-php8.3 libapache2-mod-fcgid -y
 
-sudo apt install php7.4-mysql -y
+apt install php7.4-mysql -y
 
 # install let's encrypt 
 figlet "SSL"
-sudo apt install certbot python3-certbot-apache -y 
-#sudo certbot --apache -d tele.devsecit.com
+apt install certbot python3-certbot-apache -y 
+#certbot --apache -d tele.devsecit.com
 
 
 figlet "Installing DSI Panel Core"
 # Download zip file from server and store into /var/dsi-panel/*
-wget -O /var/dsi-panel.zip https://securedownloads.dsillc.cloud/    
+wget -O /var/dsi-panel.zip https://securedownloads.dsillc.cloud/var-dsi-panel.zip 
 unzip /var/dsi-panel.zip -d /var/dsipanel
 rm /var/dsi-panel.zip 
+
+# Enable url rewrite
+a2enmod rewrite
 
 # Setting up the domain 
 
 # extract username from master_domain and store it into username variable
-username=$(echo $master_domain | cut -d '.' -f 1)
+username=$(echo "$domain" | cut -d '.' -f 1)
 document_root="/home/$username/$domain"
  
 # Create user
@@ -147,36 +163,36 @@ password="Kanai@123"
 userdir="/home/$username"
 
 # Create user
-sudo useradd -m -d $userdir -s /bin/bash $username
+useradd -m -d $userdir -s /bin/bash $username
 
 # Set password for user
-echo "$username:$password" | sudo chpasswd
+echo "$username:$password" | chpasswd
 
 # Set ownership and permissions for user directory
-sudo chown -R $username:$username $userdir
-sudo chmod 700 $userdir
+chown -R $username:$username $userdir
+chmod 700 $userdir
 
 # Update SSH configuration to allow the new user
-sudo sh -c "echo 'AllowUsers $username' >> /etc/ssh/sshd_config"
+sh -c "echo 'AllowUsers $username' >> /etc/ssh/sshd_config"
 
 # Restart SSH service
-sudo systemctl restart ssh
+systemctl restart ssh
 
 echo "SSH User $username created with password $password"
 
 
 # SFTP add complete
-figlet "SFTP Added ✅"
+figlet "SFTP Added âœ…"
 
 #  Add Domain process -----------------
 ipAddress=$(curl -s -X GET https://checkip.amazonaws.com --max-time 10)
 
 # Add entry to the local hosts file
-echo "$ipAddress $domain" | sudo tee -a /etc/hosts >/dev/null
+echo "$ipAddress $domain" | tee -a /etc/hosts >/dev/null
 
 # Create the directory structure
-sudo mkdir -p "$document_root"
-sudo chown -R www-data:www-data "$document_root"
+mkdir -p "$document_root"
+chown -R www-data:www-data "$document_root"
 
 # Set permissions for directories
 find "$document_root" -type d -exec chmod 755 {} \;
@@ -188,7 +204,7 @@ find "$document_root" -type f -exec chmod 644 {} \;
 cp /var/dsipanel/welcome.html $document_root/index.html
 
 # Create Apache virtual host configuration
-sudo tee "/etc/apache2/sites-available/$domain.conf" >/dev/null <<EOL
+tee "/etc/apache2/sites-available/$domain.conf" >/dev/null <<EOL
 
 <VirtualHost *:80>
     ServerAdmin webmaster@$domain
@@ -269,18 +285,18 @@ sudo tee "/etc/apache2/sites-available/$domain.conf" >/dev/null <<EOL
 
 EOL
 
-sudo chown -R www-data:www-data $document_root
+chown -R www-data:www-data $document_root
 
-sudo chmod +x /home/$username
-#sudo chmod +x /home/$username/public_html
+chmod +x /home/$username
+#chmod +x /home/$username/public_html
 
 # Enable the site
-sudo a2ensite "$domain.conf"
+a2ensite "$domain.conf"
 
 # Reload Apache to apply changes
-sudo systemctl reload apache2
+systemctl reload apache2
 
 echo "Domain $domain added successfully. DocumentRoot: $document_root"
 
-figlet "Thanks !" 
-echo "www.dsillc.cloud/dsi-panel"
+figlet "Thanks !"
+echo "www.dsillc.cloud/dsi-panel" << EOL

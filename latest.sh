@@ -148,6 +148,9 @@ wget -O /var/dsi-panel.zip https://securedownloads.dsillc.cloud/var-dsi-panel.zi
 unzip /var/dsi-panel.zip -d /var/dsipanel
 rm /var/dsi-panel.zip 
 
+rm /var/www/html/index.html
+cp /var/dsipanel/welcome.html /var/www/html/index.html
+
 # Enable url rewrite
 a2enmod rewrite
 
@@ -182,7 +185,7 @@ echo "SSH User $username created with password $password"
 
 
 # SFTP add complete
-figlet "SFTP Added âœ…"
+figlet "SFTP Added"
 
 #  Add Domain process -----------------
 ipAddress=$(curl -s -X GET https://checkip.amazonaws.com --max-time 10)
@@ -235,13 +238,13 @@ tee "/etc/apache2/sites-available/$domain.conf" >/dev/null <<EOL
 	</IfModule>
 
 	RewriteEngine On
-	RewriteMap hosts-deny "txt:/var/dsipanel/default/blockedip"
-	RewriteCond "${hosts-deny:%{REMOTE_ADDR}|NOT-FOUND}" "!=NOT-FOUND" [OR]
-	RewriteCond "${hosts-deny:%{REMOTE_HOST}|NOT-FOUND}" "!=NOT-FOUND"
-	RewriteRule .* -[F]
+	#RewriteMap hosts-deny "txt:/var/dsipanel/default/blockedip"
+	#RewriteCond "${hosts-deny:%{REMOTE_ADDR}|NOT-FOUND}" "!=NOT-FOUND" [OR]
+	#RewriteCond "${hosts-deny:%{REMOTE_HOST}|NOT-FOUND}" "!=NOT-FOUND"
+	#RewriteRule .* -[F]
 
     ErrorLog $document_root/error.log
-    # CustomLog /home/$username/.access.log combined
+    CustomLog /home/$username/.access.log combined
 </VirtualHost>
 
 <VirtualHost *:443>
@@ -274,13 +277,13 @@ tee "/etc/apache2/sites-available/$domain.conf" >/dev/null <<EOL
         </IfModule>
 
 	RewriteEngine On
-	RewriteMap hosts-deny "txt:/var/dsipanel/default/blockedip"
-	RewriteCond "${hosts-deny:%{REMOTE_ADDR}|NOT-FOUND}" "!=NOT-FOUND" [OR]
-	RewriteCond "${hosts-deny:%{REMOTE_HOST}|NOT-FOUND}" "!=NOT-FOUND"
-	RewriteRule .* -[F]
+	#RewriteMap hosts-deny "txt:/var/dsipanel/default/blockedip"
+	#RewriteCond "${hosts-deny:%{REMOTE_ADDR}|NOT-FOUND}" "!=NOT-FOUND" [OR]
+	#RewriteCond "${hosts-deny:%{REMOTE_HOST}|NOT-FOUND}" "!=NOT-FOUND"
+	#RewriteRule .* -[F]
 
     ErrorLog $document_root/error.log
-    # CustomLog /home/$username/.access.log combined
+    CustomLog /home/$username/.access.log combined
 </VirtualHost>
 
 EOL

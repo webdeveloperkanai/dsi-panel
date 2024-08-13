@@ -213,8 +213,8 @@ tee "/etc/apache2/sites-available/$domain.conf" >/dev/null <<EOL
     ServerAdmin webmaster@$domain
     ServerName $domain
 
-    Redirect permanent /cpanel http://server2.dsillc.online
-    Redirect permanent /fmanager http://server2.dsillc.online/filemanager
+    Redirect permanent /cpanel http://server.dsillc.cloud
+    Redirect permanent /fmanager http://files.dsillc.cloud
 
     DocumentRoot $document_root
 
@@ -251,8 +251,9 @@ tee "/etc/apache2/sites-available/$domain.conf" >/dev/null <<EOL
     ServerAdmin webmaster@$domain
     ServerName $domain
 
-    Redirect permanent /cpanel https://server2.dsillc.online
-    Redirect permanent /fmanager https://server2.dsillc.online/filemanager
+    Redirect permanent /cpanel https://server.dsillc.cloud
+    Redirect permanent /fmanager https://files.dsillc.cloud
+
 
     DocumentRoot $document_root
 

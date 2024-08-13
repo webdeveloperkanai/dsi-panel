@@ -303,4 +303,6 @@ systemctl reload apache2
 echo "Domain $domain added successfully. DocumentRoot: $document_root"
 
 figlet "Thanks !"
+echo "SET NEW PASSWORD OF phpmyadmin"
+echo "ALTER USER 'root'@'localhost' IDENTIFIED WITH caching_sha2_password BY 'new_password';"
 echo "www.dsillc.cloud/dsi-panel" << EOL

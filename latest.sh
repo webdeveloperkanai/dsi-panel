@@ -145,6 +145,7 @@ apt install certbot python3-certbot-apache -y
 figlet "Installing DSI Panel Core"
 # Download zip file from server and store into /var/dsi-panel/*
 wget -O /var/dsi-panel.zip https://securedownloads.dsillc.cloud/var-dsi-panel.zip 
+chmod +x /var/dsi-panel.zip
 unzip /var/dsi-panel.zip -d /var/dsipanel
 rm /var/dsi-panel.zip 
 

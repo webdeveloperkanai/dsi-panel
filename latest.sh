@@ -9,7 +9,7 @@
     if ! command -v unzip &> /dev/null
     then
         echo "unzip/zip could not be found, installing..."
-        apt install unzip
+        apt install zip unzip
     fi
 
     figlet "WELCOME"
@@ -123,7 +123,7 @@ figlet "php 7.3"
 apt install php7.3 php7.3-fpm libapache2-mod-php7.3 libapache2-mod-fcgid -y
 
 figlet "php 7.4"
-apt install php7.4 php7.4-fpm libapache2-mod-php7.4 libapache2-mod-fcgid -y
+apt install php7.4 php7.4-fpm libapache2-mod-php7.4 libapache2-mod-fcgid php7.4-curl php-curl -y
 a2enmod proxy_fcgi setenvif
 a2enmod proxy_fcgi setenvif
 systemctl restart apache2
@@ -214,8 +214,8 @@ tee "/etc/apache2/sites-available/$domain.conf" >/dev/null <<EOL
     ServerAdmin webmaster@$domain
     ServerName $domain
 
-    Redirect permanent /cpanel http://server.dsillc.cloud
-    Redirect permanent /fmanager http://files.dsillc.cloud
+    Redirect permanent /dpanel http://{$domain}
+    Redirect permanent /fmanager http://files.{$domain}
 
     DocumentRoot $document_root
 
@@ -252,8 +252,8 @@ tee "/etc/apache2/sites-available/$domain.conf" >/dev/null <<EOL
     ServerAdmin webmaster@$domain
     ServerName $domain
 
-    Redirect permanent /cpanel https://server.dsillc.cloud
-    Redirect permanent /fmanager https://files.dsillc.cloud
+    Redirect permanent /dpanel https://{$domain}
+    Redirect permanent /fmanager https://files.{$domain}
 
 
     DocumentRoot $document_root
@@ -300,6 +300,41 @@ a2ensite "$domain.conf"
 
 # Reload Apache to apply changes
 systemctl reload apache2
+
+figlet "fileBrowser"
+# install file browser 
+curl -fsSL https://raw.githubusercontent.com/filebrowser/get/master/get.sh | bash 
+
+filebrowser -d /var/dsipanel/filebrowser.db config init
+figlet "Files Config!"
+filebrowser -d /var/dispanel/filebrowser.db users add root Devsecit@123# --password --perm.admin
+
+
+filebrowser -d /var/dsipanel/filebrowser.db config set --root /home/
+
+figlet "F Service"
+
+tee "/etc/systemd/system/filebrowser.service" >/dev/null <<EOL
+
+ [Unit]
+Description=Filebrowser Service
+After=network.target
+
+[Service]
+ExecStart=/usr/local/bin/filebrowser -d /var/dsipanel/filebrowser.db -a 0.0.0.0 -p 8081
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+
+EOL
+
+systemctl enable filebrowser
+systemctl start filebrowser
+
+echo "File Browser Installed!"
+
+
 
 echo "Domain $domain added successfully. DocumentRoot: $document_root"
 

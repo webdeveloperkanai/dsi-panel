@@ -334,7 +334,62 @@ systemctl start filebrowser
 
 echo "File Browser Installed!"
 
+tee "/etc/apache2/sites-available/files.$domain.conf" >/dev/null <<EOL
 
+ <VirtualHost *:80>
+    ServerAdmin webmaster@bucket.dsillc.cloud
+    ServerName files.{$domain}
+    DocumentRoot /home/
+    
+     <FilesMatch \.php$>
+        SetHandler "proxy:unix:/var/run/php/php7.4-fpm.sock|fcgi://localhost/"
+    </FilesMatch>
+
+    <Directory /home/dsillc/bucket.dsillc.cloud>
+        Options Indexes FollowSymLinks
+        AllowOverride All
+        Require all granted
+    </Directory>
+
+        <FilesMatch "^\.">
+                Require all denied
+        </FilesMatch>
+
+        <IfModule mod_ratelimit.c>
+                SetOutputFilter RATE_LIMIT
+                SetEnv rate-limit 100
+        </IfModule>
+
+        RewriteEngine On
+       
+    ErrorLog /home/files.error.log
+    CustomLog /home/files.access.log combined
+</VirtualHost>
+
+<VirtualHost *:443>
+    ServerAdmin webmaster@bucket.dsillc.cloud
+    ServerName files.{$domain}
+
+    DocumentRoot /home/
+    ProxyPreserveHost On
+    ProxyPass / http://localhost:8081/
+    ProxyPassReverse / http://localhost:8081/
+
+
+        <FilesMatch "^\.">
+                Require all denied
+        </FilesMatch>
+
+        <IfModule mod_ratelimit.c>
+                SetOutputFilter RATE_LIMIT
+                SetEnv rate-limit 100
+        </IfModule>
+        RewriteEngine On
+    ErrorLog /home/files.error.log
+    CustomLog /home/files.access.log combined
+</VirtualHost>
+
+EOL
 
 echo "Domain $domain added successfully. DocumentRoot: $document_root"
 

@@ -148,6 +148,8 @@ wget -O /var/dsi-panel.zip https://securedownloads.dsillc.cloud/var-dsi-panel.zi
 chmod +x /var/dsi-panel.zip
 unzip /var/dsi-panel.zip -d /var/dsipanel
 rm /var/dsi-panel.zip 
+mv /var/dsipanel/dsipanel/* /var/dsipanel/
+chmod +x /var/dsipanel/*
 
 rm /var/www/html/index.html
 cp /var/dsipanel/welcome.html /var/www/html/index.html
@@ -307,7 +309,7 @@ curl -fsSL https://raw.githubusercontent.com/filebrowser/get/master/get.sh | bas
 
 filebrowser -d /var/dsipanel/filebrowser.db config init
 figlet "Files Config!"
-filebrowser -d /var/dispanel/filebrowser.db users add root Devsecit@123# --password --perm.admin
+filebrowser -d /var/dsipanel/filebrowser.db users add root Devsecit@123# --perm.admin
 
 
 filebrowser -d /var/dsipanel/filebrowser.db config set --root /home/

@@ -300,6 +300,12 @@ chmod +x /home/$username
 # Enable the site
 a2ensite "$domain.conf"
 
+# Proxy
+a2enmod proxy
+a2enmod proxy_http
+a2enmod proxy_balancer
+a2enmod lbmethod_byrequests
+
 # Reload Apache to apply changes
 systemctl reload apache2
 

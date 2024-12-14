@@ -151,8 +151,14 @@ rm /var/dsi-panel.zip
 mv /var/dsipanel/dsipanel/* /var/dsipanel/
 chmod +x /var/dsipanel/*
 
-rm /var/www/html/index.html
-cp /var/dsipanel/welcome.html /var/www/html/index.html
+rm -f /var/www/html/index.html
+
+# Check if the welcome.html file exists before copying
+if [ ! -f /var/www/html/index.html ]; then
+    cp /var/dsipanel/welcome.html /var/www/html/index.html
+else
+    echo "File already exists, not copying."
+fi
 
 # Enable url rewrite
 a2enmod rewrite
@@ -207,7 +213,16 @@ find "$document_root" -type d -exec chmod 755 {} \;
 find "$document_root" -type f -exec chmod 644 {} \;
 
 # Create a simple HTML file for testing
-cp /var/dsipanel/welcome.html $document_root/index.html
+
+rm -f "$document_root/index.html"
+
+# Check if the welcome.html file exists before copying
+if [ ! -f "$document_root/index.html" ]; then
+    cp /var/dsipanel/welcome.html "$document_root/index.html"
+else
+    echo "File already exists, not copying."
+fi
+
 
 # Create Apache virtual host configuration
 tee "/etc/apache2/sites-available/$domain.conf" >/dev/null <<EOL
@@ -401,7 +416,63 @@ EOL
 
 echo "Domain $domain added successfully. DocumentRoot: $document_root"
 
+
+tee "/etc/apache2/sites-available/s3-bucket.$domain.conf" >/dev/null <<EOL
+
+ <VirtualHost *:80>
+    ServerAdmin webmaster@bucket.{$domain}
+    ServerName s3-bucket.{$domain}
+    DocumentRoot /var/dsipanel/files
+    
+     <FilesMatch \.php$>
+        SetHandler "proxy:unix:/var/run/php/php7.4-fpm.sock|fcgi://localhost/"
+    </FilesMatch>
+
+    <Directory /home/dsillc/bucket.dsillc.cloud>
+        Options Indexes FollowSymLinks
+        AllowOverride All
+        Require all granted
+    </Directory>
+
+        <FilesMatch "^\.">
+                Require all denied
+        </FilesMatch>
+
+        <IfModule mod_ratelimit.c>
+                SetOutputFilter RATE_LIMIT
+                SetEnv rate-limit 100
+        </IfModule>
+
+        RewriteEngine On
+       
+    ErrorLog /home/files.error.log
+    CustomLog /home/files.access.log combined
+</VirtualHost>
+
+<VirtualHost *:443>
+    ServerAdmin webmaster@bucket.{$domain}
+    ServerName s3-bucket.{$domain}
+
+    DocumentRoot /var/dsipanel/files
+     
+	     <FilesMatch "^\.">
+                Require all denied
+        </FilesMatch>
+
+        <IfModule mod_ratelimit.c>
+                SetOutputFilter RATE_LIMIT
+                SetEnv rate-limit 100
+        </IfModule>
+        RewriteEngine On
+    ErrorLog /home/files.error.log
+    CustomLog /home/files.access.log combined
+</VirtualHost>
+
+EOL
+
+echo "Domain $domain added successfully. DocumentRoot: $document_root"
+
 figlet "Thanks !"
 echo "SET NEW PASSWORD OF phpmyadmin"
-echo "ALTER USER 'root'@'localhost' IDENTIFIED WITH caching_sha2_password BY 'new_password';"
+echo "ALTER USER 'root'@'localhost' IDENTIFIED WITH caching_sha2_password BY 'NewPassword@123#';"
 echo "www.dsillc.cloud/dsi-panel" << EOL

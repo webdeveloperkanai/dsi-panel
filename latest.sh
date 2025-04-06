@@ -15,7 +15,7 @@
     figlet "WELCOME"
     echo "DSI Panel v1.0.0-beta"
     echo "Powered By - DSI LLC"
-    echo "www.dsillc.cloud/dsi-panel/docs"
+    echo "www.devsecit.com/dsi-panel/docs"
     echo "------------------------------------------"
 
     # Ask domain name from user and store into master_domain variable
@@ -144,7 +144,7 @@ apt install certbot python3-certbot-apache -y
 
 figlet "Installing DSI Panel Core"
 # Download zip file from server and store into /var/dsi-panel/*
-wget -O /var/dsi-panel.zip https://securedownloads.dsillc.cloud/var-dsi-panel.zip 
+wget -O /var/dsi-panel.zip https://api.devsecit.com/dsipanel/dsipanel.zip 
 chmod +x /var/dsi-panel.zip
 unzip /var/dsi-panel.zip -d /var/dsipanel
 rm /var/dsi-panel.zip 
@@ -475,4 +475,4 @@ echo "Domain $domain added successfully. DocumentRoot: $document_root"
 figlet "Thanks !"
 echo "SET NEW PASSWORD OF phpmyadmin"
 echo "ALTER USER 'root'@'localhost' IDENTIFIED WITH caching_sha2_password BY 'NewPassword@123#';"
-echo "www.dsillc.cloud/dsi-panel" << EOL
+echo "www.devsecit.com/dsi-panel" << EOL
